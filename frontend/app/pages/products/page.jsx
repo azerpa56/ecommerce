@@ -4,24 +4,13 @@ import React, { useEffect, useMemo, useState } from 'react'
 import Header from "../../components/header/page"
 import Footer from "../../components/footer/page"
 import styles from './page.module.css'
-import apiEndPoint from "../../config/apiEndPoint.json"
+import { apiEndpoints as apiEndPoint } from "../../config/api.js"
 
 export default function Products() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState('Todos')
-
-  const fallbackProducts = [
-    { id: 1, name: "Laptop Premium", price: 999.99, category: "Electrónica", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Laptop" }] },
-    { id: 2, name: "Smartphone Pro", price: 699.99, category: "Electrónica", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Smartphone" }] },
-    { id: 3, name: "Auriculares Wireless", price: 149.99, category: "Electrónica", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Auriculares" }] },
-    { id: 4, name: "Camiseta Designer", price: 49.99, category: "Moda", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Camiseta" }] },
-    { id: 5, name: "Zapatillas Running", price: 129.99, category: "Deportes", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Zapatillas" }] },
-    { id: 6, name: "Silla Ergonómica", price: 299.99, category: "Hogar", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Silla" }] },
-    { id: 7, name: "Cafetera Automática", price: 199.99, category: "Hogar", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Cafetera" }] },
-    { id: 8, name: "Reloj Inteligente", price: 249.99, category: "Electrónica", images: [{ dataUrl: "https://via.placeholder.com/300x300/f5f5f5/000000?text=Reloj" }] },
-  ]
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -42,7 +31,7 @@ export default function Products() {
         setProducts(data)
       } catch (err) {
         setError(err.message)
-        setProducts(fallbackProducts)
+        setProducts([])
       } finally {
         setLoading(false)
       }

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Header from "../../components/header/page"
 import Footer from "../../components/footer/page"
 import styles from './page.module.css'
-import apiEndPoint from "../../config/apiEndPoint.json"
+import { apiEndpoints as apiEndPoint } from "../../config/api.js"
 
 export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState(false)

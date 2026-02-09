@@ -6,7 +6,7 @@ import { CardElement, Elements, useElements, useStripe } from '@stripe/react-str
 import Header from "../../components/header/page"
 import Footer from "../../components/footer/page"
 import styles from './page.module.css'
-import apiEndPoint from "../../config/apiEndPoint.json"
+import { apiEndpoints as apiEndPoint } from "../../config/api.js"
 
 const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder'
 const stripePromise = stripePublicKey.includes('placeholder') ? null : loadStripe(stripePublicKey)
