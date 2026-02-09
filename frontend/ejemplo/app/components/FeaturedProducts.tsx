@@ -42,28 +42,37 @@ export function FeaturedProducts() {
   return (
     <section className="py-12 bg-white" id="inicio">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {featuredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white border-2 border-[#2D28FF] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
-            >
-              <div className="relative aspect-square bg-gray-100">
-                <ImageWithFallback
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 right-3 bg-[#2D28FF] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                  {product.badge}
+        <div className="text-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#2D28FF]">PRODUCTOS DESTACADOS</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Recorre el carrusel para ver algunos de nuestros productos más populares.
+          </p>
+        </div>
+
+        <div className="relative">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+            {featuredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white border border-[#2D28FF]/60 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex-shrink-0 min-w-[230px] sm:min-w-[260px] md:min-w-[280px] lg:min-w-[300px] max-w-xs snap-center"
+              >
+                <div className="relative bg-gray-100 overflow-hidden">
+                  <ImageWithFallback
+                    src={product.image}
+                    alt={product.name}
+                    className="card-image"
+                  />
+                  <div className="absolute top-3 right-3 bg-[#2D28FF] text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    {product.badge}
+                  </div>
+                </div>
+                <div className="p-4 bg-white text-center">
+                  <h3 className="text-[#2D28FF] font-bold text-sm mb-1 line-clamp-2">{product.name}</h3>
+                  <p className="text-gray-600 text-xs line-clamp-3">{product.description}</p>
                 </div>
               </div>
-              <div className="p-4 bg-white text-center">
-                <h3 className="text-[#2D28FF] font-bold text-sm mb-2">{product.name}</h3>
-                <p className="text-gray-600 text-xs">{product.description}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

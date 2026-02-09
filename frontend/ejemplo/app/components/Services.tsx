@@ -35,20 +35,27 @@ const services = [
 
 export function Services() {
   return (
-    <section className="py-8 bg-gradient-to-b from-white to-gray-50" id="servicios">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="space-y-8">
+    <section className="py-12 bg-gray-50" id="servicios">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#2D28FF]">SERVICIOS</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Soluciones tecnológicas para tu negocio y tus equipos.
+          </p>
+        </div>
+
+        <div className="space-y-6">
           {services.map((service, index) => (
             <div
               key={service.id}
-              className={`bg-[#2D28FF] rounded-3xl p-6 md:p-8 shadow-2xl ${
+              className={`bg-white rounded-2xl p-4 md:p-6 shadow-md border border-[#2D28FF]/20 ${
                 index % 2 === 0 ? "" : ""
               }`}
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
                 {/* Service Card - Left */}
-                <div className="lg:col-span-3">
-                  <div className="bg-white rounded-2xl p-4 shadow-lg">
+                <div className="lg:col-span-4">
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#2D28FF]/10">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex items-center gap-1">
                         <div className="grid grid-cols-2 gap-0.5">
@@ -61,15 +68,15 @@ export function Services() {
                       <h4 className="text-[#2D28FF] font-bold text-sm">GORAZER, CORP</h4>
                     </div>
                     
-                    <div className="bg-[#2D28FF] text-white px-3 py-1.5 rounded-full inline-block mb-3">
+                    <div className="bg-[#2D28FF] text-white px-3 py-1.5 rounded-full inline-block mb-3 text-xs">
                       <span className="text-xs font-semibold">Otros Servicios</span>
                     </div>
 
-                    <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl mb-3 overflow-hidden relative">
+                    <div className="aspect-[4/3] max-h-32 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl mb-3 overflow-hidden relative">
                       <ImageWithFallback
                         src={service.image}
                         alt={service.cardTitle}
-                        className="w-full h-full object-cover opacity-90"
+                        className="card-image opacity-90"
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-white text-center">
@@ -78,7 +85,7 @@ export function Services() {
                       </div>
                     </div>
 
-                    <div className="bg-white border-2 border-[#2D28FF] rounded-xl p-3">
+                    <div className="bg-white border border-[#2D28FF]/30 rounded-xl p-3">
                       {service.cardFeatures.map((feature, idx) => (
                         <p
                           key={idx}
@@ -91,28 +98,28 @@ export function Services() {
                       ))}
                     </div>
 
-                    <div className="mt-3 text-center text-xs text-gray-600 font-semibold">
+                    <div className="mt-3 text-center text-[11px] text-gray-600 font-semibold">
                       IMPULSA TU NEGOCIO CON NOSOTROS.
                     </div>
                   </div>
                 </div>
 
                 {/* Service Description - Right */}
-                <div className="lg:col-span-9">
-                  <div className="text-white space-y-4">
-                    <h2 className="text-2xl md:text-3xl font-bold">{service.title}</h2>
+                <div className="lg:col-span-8">
+                  <div className="text-[#1f2933] space-y-3">
+                    <h3 className="text-xl md:text-2xl font-bold text-[#2D28FF]">{service.title}</h3>
                     
-                    <p className="text-base leading-relaxed">
+                    <p className="text-sm md:text-base leading-relaxed">
                       {service.description}
                     </p>
                     
-                    <p className="text-base leading-relaxed">
+                    <p className="text-sm md:text-base leading-relaxed">
                       {service.features}
                     </p>
 
                     <div className="pt-2">
-                      <p className="font-semibold mb-3">PRECIO: CONSULTAR</p>
-                      <button className="bg-white text-[#2D28FF] px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl">
+                      <p className="font-semibold mb-3 text-sm">PRECIO: CONSULTAR</p>
+                      <button className="bg-[#2D28FF] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#2520d6] transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg">
                         <span>CONTACTANOS</span>
                         <MessageCircle size={20} />
                       </button>

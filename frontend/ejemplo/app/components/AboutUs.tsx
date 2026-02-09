@@ -16,11 +16,11 @@ export function AboutUs() {
                 <h3 className="font-bold text-2xl">¿QUIENES SOMOS?</h3>
               </div>
               
-              <div className="bg-white rounded-2xl overflow-hidden mb-4 w-full max-w-xs aspect-[4/3]">
+              <div className="bg-white rounded-2xl overflow-hidden mb-4 w-full max-w-sm mx-auto aspect-[4/3]">
                 <ImageWithFallback
                   src="https://images.unsplash.com/photo-1650446007980-b1c1093eb2ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBxdWVzdGlvbiUyMG1hcmslMjB0aGlua2luZ3xlbnwxfHx8fDE3Njc4OTE4MDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
                   alt="¿Quiénes Somos?"
-                  className="w-full h-full object-cover"
+                  className="card-image"
                 />
               </div>
               
@@ -38,11 +38,11 @@ export function AboutUs() {
                 <h3 className="font-bold text-2xl">MISIÓN</h3>
               </div>
               
-              <div className="bg-white rounded-2xl overflow-hidden mb-4 w-full max-w-xs aspect-[4/3]">
+              <div className="bg-white rounded-2xl overflow-hidden mb-4 w-full max-w-sm mx-auto aspect-[4/3]">
                 <ImageWithFallback
                   src="https://images.unsplash.com/photo-1728933102332-a4f1a281a621?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbiUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzY3ODQ0MzAxfDA&ixlib=rb-4.1.0&q=80&w=1080"
                   alt="Misión"
-                  className="w-full h-full object-cover"
+                  className="card-image"
                 />
               </div>
               
@@ -60,11 +60,11 @@ export function AboutUs() {
                 <h3 className="font-bold text-2xl">VISIÓN</h3>
               </div>
               
-              <div className="bg-white rounded-2xl overflow-hidden mb-4 w-full max-w-xs aspect-[4/3]">
+              <div className="bg-white rounded-2xl overflow-hidden mb-4 w-full max-w-sm mx-auto aspect-[4/3]">
                 <ImageWithFallback
                   src="https://images.unsplash.com/photo-1579864795584-092b04e14e67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHZpc2lvbiUyMHN1Y2Nlc3N8ZW58MXx8fHwxNzY3ODE1NDE1fDA&ixlib=rb-4.1.0&q=80&w=1080"
                   alt="Visión"
-                  className="w-full h-full object-cover"
+                  className="card-image"
                 />
               </div>
               
