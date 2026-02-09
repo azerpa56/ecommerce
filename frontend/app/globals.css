@@ -10,20 +10,82 @@ html,
 body {
   margin: 0;
   padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f5f5f5;
+  color: rgb(0, 0, 0);
 }
 
 main {
   min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
 img {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+/* Estilos base para inputs coherentes con login */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+select,
+textarea {
+  font-family: inherit;
+  font-size: 16px;
+  padding: 10px 15px;
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 5px;
+  background-color: rgb(255, 255, 255);
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos base para botones coherentes con login */
+button {
+  font-family: inherit;
+  font-size: 16px;
+  padding: 12px 25px;
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 5px;
+  background-color: rgb(0, 0, 0);
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+button:hover {
+  background-color: #f5f5f5;
+  color: rgb(0, 0, 0);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Links base */
+a {
+  color: rgb(0, 0, 0);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: rgb(50, 50, 50);
 }
 
 .card-image {
@@ -40,3 +102,4 @@ img {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+

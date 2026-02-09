@@ -1,6 +1,6 @@
 "use client";
 
-import App from "../ejemplo/app/App";
+import App from "./pages/home/page";
 
 export default function HomePage() {
   return <App />;

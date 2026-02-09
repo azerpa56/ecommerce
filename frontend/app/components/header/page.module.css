@@ -1,0 +1,101 @@
+/* Header Principal - Coherente con diseño de login */
+
+.header {
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  border-bottom: 2px solid rgb(0, 0, 0);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.logoContainer:hover {
+  transform: scale(1.05);
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 500px;
+  margin: 0 40px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 12px 20px;
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: rgb(255, 255, 255);
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  border-color: rgb(0, 0, 0);
+}
+
+.searchInput::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.searchButton {
+  padding: 12px 30px;
+  background-color: rgb(0, 0, 0);
+  color: rgb(255, 255, 255);
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.searchButton:hover {
+  background-color: #f5f5f5;
+  color: rgb(0, 0, 0);
+}
+
+.searchButton:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .topBar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px 20px;
+  }
+
+  .searchContainer {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+}
