@@ -1,5 +1,5 @@
 // Configuración dinámica de API basada en variables de entorno
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ecommerce-fht9.onrender.com';
 
 export const apiEndpoints = {
   auth: {
