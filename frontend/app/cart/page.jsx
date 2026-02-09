@@ -3,10 +3,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js'
-import Header from "../../components/header/page"
-import Footer from "../../components/footer/page"
+import Header from "../components/header/page"
+import Footer from "../components/footer/page"
 import styles from './page.module.css'
-import { apiEndpoints as apiEndPoint } from "../../config/api.js"
+import { apiEndpoints as apiEndPoint } from "../config/api.js"
 
 const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder'
 const stripePromise = stripePublicKey.includes('placeholder') ? null : loadStripe(stripePublicKey)

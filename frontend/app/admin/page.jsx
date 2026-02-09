@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import Header from "../../components/header/page"
-import Footer from "../../components/footer/page"
+import Header from "../components/header/page"
+import Footer from "../components/footer/page"
 import styles from './page.module.css'
-import { apiEndpoints as apiEndPoint } from "../../config/api.js"
+import { apiEndpoints as apiEndPoint } from "../config/api.js"
 
 export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState(false)

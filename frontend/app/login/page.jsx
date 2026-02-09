@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
-import { apiEndpoints as apiEndPoint } from "../../config/api.js";
+import { apiEndpoints as apiEndPoint } from "../config/api.js";
 
 const LoginRegisterForm = () => {
   const router = useRouter();

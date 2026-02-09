@@ -81,7 +81,4 @@ export default function Nav() {
         </ul>
     </nav>
   );
-        </ul>
-    </nav>
-  )
 }

@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import Header from "../../components/header/page"
-import Footer from "../../components/footer/page"
+import Header from "../components/header/page"
+import Footer from "../components/footer/page"
 import styles from './page.module.css'
 
 export default function Noticias() {
