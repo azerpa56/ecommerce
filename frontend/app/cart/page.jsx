@@ -97,7 +97,7 @@ const CheckoutForm = ({ total, cartItems, onMessage }) => {
             localStorage.removeItem('cart')
             onMessage('Pago completado con exito. Redirigiendo...')
             setTimeout(() => {
-              window.location.href = '/pages/orders'
+              window.location.href = '/orders'
             }, 2000)
           } else {
             onMessage('Pago completado pero error al registrar orden. Contacta soporte.')

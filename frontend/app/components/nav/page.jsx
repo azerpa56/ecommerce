@@ -40,44 +40,47 @@ export default function Nav() {
               <Link href="/" className={styles.navLink}>Inicio</Link>
             </li>
             <li className={styles.navItem}>
-              <Link href="/pages/products" className={styles.navLink}>Productos</Link>
+              <Link href="/products" className={styles.navLink}>Productos</Link>
             </li>
             <li className={styles.navItem}>
-              <Link href="/pages/servicio" className={styles.navLink}>Servicios</Link>
+              <Link href="/servicio" className={styles.navLink}>Servicios</Link>
             </li>
             <li className={styles.navItem}>
-              <Link href="/pages/ofertas" className={styles.navLink}>Ofertas</Link>
+              <Link href="/ofertas" className={styles.navLink}>Ofertas</Link>
             </li>
             <li className={styles.navItem}>
-              <Link href="/pages/noticias" className={styles.navLink}>Noticias</Link>
+              <Link href="/noticias" className={styles.navLink}>Noticias</Link>
             </li>
             <li className={styles.navItem}>
-              <Link href="/pages/contact" className={styles.navLink}>Contacto</Link>
+              <Link href="/contact" className={styles.navLink}>Contacto</Link>
             </li>
             {isLoggedIn && !isAdmin && (
               <>
                 <li className={styles.navItem}>
-                  <Link href="/pages/cart" className={styles.navLink}>Carrito</Link>
+                  <Link href="/cart" className={styles.navLink}>Carrito</Link>
                 </li>
                 <li className={styles.navItem}>
-                  <Link href="/pages/orders" className={styles.navLink}>Mis Pedidos</Link>
+                  <Link href="/orders" className={styles.navLink}>Mis Pedidos</Link>
                 </li>
               </>
             )}
             {isAdmin && (
               <li className={styles.navItem}>
-                <Link href="/pages/admin" className={styles.navLink}>Admin</Link>
+                <Link href="/admin" className={styles.navLink}>Admin</Link>
               </li>
             )}
             {!isLoggedIn ? (
               <li className={styles.navItem}>
-                <Link href="/pages/login" className={styles.navLinkLogin}>Iniciar Sesión</Link>
+                <Link href="/login" className={styles.navLinkLogin}>Iniciar Sesión</Link>
               </li>
             ) : (
               <li className={styles.navItem}>
                 <button onClick={handleLogout} className={styles.logoutButton}>Cerrar Sesión</button>
               </li>
             )}
+        </ul>
+    </nav>
+  );
         </ul>
     </nav>
   )
