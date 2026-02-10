@@ -106,7 +106,7 @@ public class BcvScraperService {
 
     /**
      * Tarea programada para actualizar la tasa cada 6 horas
-     * Cron: 0 0 */6 * * * = Cada 6 horas
+     * Cron: 0 0 asterisco-barra-6 * * * = Cada 6 horas
      */
     @Scheduled(cron = "0 0 */6 * * *")
     public void scheduleRateUpdate() {
