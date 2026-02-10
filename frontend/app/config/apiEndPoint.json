@@ -1,28 +1,44 @@
 {
+	"API_BASE_URL": "https://ecommerce-fht9.onrender.com",
 	"auth": {
-		"signin": "http://localhost:8080/api/auth/signin",
-		"signup": "http://localhost:8080/api/auth/signup",
-		"verify": "http://localhost:8080/api/auth/verify"
+		"signin": "https://ecommerce-fht9.onrender.com/api/auth/signin",
+		"signup": "https://ecommerce-fht9.onrender.com/api/auth/signup",
+		"verify": "https://ecommerce-fht9.onrender.com/api/auth/verify"
 	},
 	"payment": {
-		"createPaymentIntent": "http://localhost:8080/api/payment/create-payment-intent"
+		"createPaymentIntent": "https://ecommerce-fht9.onrender.com/api/payment/create-payment-intent"
 	},
 	"products": {
-		"list": "http://localhost:8080/api/products",
-		"detail": "http://localhost:8080/api/products",
-		"admin": "http://localhost:8080/api/admin/products"
+		"list": "https://ecommerce-fht9.onrender.com/api/products",
+		"detail": "https://ecommerce-fht9.onrender.com/api/products",
+		"new": "https://ecommerce-fht9.onrender.com/api/products/new",
+		"featured": "https://ecommerce-fht9.onrender.com/api/products/featured",
+		"admin": "https://ecommerce-fht9.onrender.com/api/admin/products",
+		"inventory": "https://ecommerce-fht9.onrender.com/api/admin/products/inventory",
+		"featured_toggle": "https://ecommerce-fht9.onrender.com/api/admin/products"
 	},
 	"services": {
-		"list": "http://localhost:8080/api/services",
-		"admin": "http://localhost:8080/api/admin/services"
+		"list": "https://ecommerce-fht9.onrender.com/api/services",
+		"admin": "https://ecommerce-fht9.onrender.com/api/admin/services"
 	},
 	"orders": {
-		"create": "http://localhost:8080/api/orders",
-		"user": "http://localhost:8080/api/orders/user",
-		"admin": "http://localhost:8080/api/admin/orders"
+		"create": "https://ecommerce-fht9.onrender.com/api/orders",
+		"user": "https://ecommerce-fht9.onrender.com/api/orders/user",
+		"admin": "https://ecommerce-fht9.onrender.com/api/admin/orders"
+	},
+	"currency": {
+		"bcv": "https://ecommerce-fht9.onrender.com/api/currency/bcv",
+		"convertUsdToBs": "https://ecommerce-fht9.onrender.com/api/currency/convert/usd-to-bs",
+		"convertBsToUsd": "https://ecommerce-fht9.onrender.com/api/currency/convert/bs-to-usd",
+		"updateBcv": "https://ecommerce-fht9.onrender.com/api/currency/bcv/update"
+	},
+	"reports": {
+		"profits": "https://ecommerce-fht9.onrender.com/api/admin/reports/profits",
+		"summary": "https://ecommerce-fht9.onrender.com/api/admin/reports/summary",
+		"byProduct": "https://ecommerce-fht9.onrender.com/api/admin/reports/by-product"
 	},
 	"news": {
-		"tech": "http://localhost:8080/api/news/tech"
+		"tech": "https://ecommerce-fht9.onrender.com/api/news/tech"
 	}
 }
 

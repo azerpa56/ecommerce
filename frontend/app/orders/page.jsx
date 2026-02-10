@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Header from "../components/header/page"
 import Footer from "../components/footer/page"
 import styles from './page.module.css'
-import { apiEndpoints as apiEndPoint } from "../config/api.js"
+import apiEndPoint from "../config/apiEndPoint.json"
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([])

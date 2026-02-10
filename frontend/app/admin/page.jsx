@@ -3,35 +3,30 @@
 import React, { useEffect, useState } from 'react'
 import Header from "../components/header/page"
 import Footer from "../components/footer/page"
-import styles from './page.module.css'
-import { apiEndpoints as apiEndPoint } from "../config/api.js"
+import CreateProductModal from "../components/CreateProductModal"
+import LoadInventoryModal from "../components/LoadInventoryModal"
+import CreateServiceModal from "../components/CreateServiceModal"
+import EditProductModal from "../components/EditProductModal"
+import AdminReports from "../components/AdminReports"
+import styles from './admin-new.module.css'
+import apiEndPoint from "../config/apiEndPoint.json"
 
 export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [authToken, setAuthToken] = useState('')
   const [adminMessage, setAdminMessage] = useState('')
-  const [adminMessageType, setAdminMessageType] = useState('error')
+  const [adminMessageType, setAdminMessageType] = useState('success')
+
+  // Modal states
+  const [isCreateProductOpen, setIsCreateProductOpen] = useState(false)
+  const [isLoadInventoryOpen, setIsLoadInventoryOpen] = useState(false)
+  const [isCreateServiceOpen, setIsCreateServiceOpen] = useState(false)
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false)
+  const [isViewReportsOpen, setIsViewReportsOpen] = useState(false)
 
   const [products, setProducts] = useState([])
   const [services, setServices] = useState([])
-
-  const [productForm, setProductForm] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    stock: '',
-    active: true
-  })
-  const [editingProductId, setEditingProductId] = useState(null)
-
-  const [serviceForm, setServiceForm] = useState({
-    title: '',
-    description: '',
-    icon: '',
-    active: true
-  })
-  const [editingServiceId, setEditingServiceId] = useState(null)
+  const [selectedProduct, setSelectedProduct] = useState(null)
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -56,6 +51,7 @@ export default function AdminPage() {
       setProducts(Array.isArray(data) ? data : [])
     } catch (error) {
       setAdminMessage('No se pudieron cargar los productos')
+      setAdminMessageType('error')
     }
   }
 
@@ -66,87 +62,64 @@ export default function AdminPage() {
       setServices(Array.isArray(data) ? data : [])
     } catch (error) {
       setAdminMessage('No se pudieron cargar los servicios')
-    }
-  }
-
-  const handleProductSubmit = async (event) => {
-    event.preventDefault()
-    setAdminMessage('')
-
-    try {
-      const payload = {
-        name: productForm.name,
-        description: productForm.description,
-        price: Number(productForm.price),
-        category: productForm.category,
-        stock: Number(productForm.stock),
-        active: productForm.active
-      }
-
-      const url = editingProductId
-        ? `${apiEndPoint.products.admin}/${editingProductId}`
-        : apiEndPoint.products.admin
-
-      const method = editingProductId ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
-        },
-        body: JSON.stringify(payload)
-      })
-
-      if (!response.ok) {
-        throw new Error('Error al guardar el producto')
-      }
-
-      setProductForm({
-        name: '',
-        description: '',
-        price: '',
-        category: '',
-        stock: '',
-        active: true
-      })
-      setEditingProductId(null)
-      fetchProducts()
-      setAdminMessage('Producto guardado exitosamente')
-      setAdminMessageType('success')
-      setTimeout(() => setAdminMessage(''), 3000)
-    } catch (error) {
-      setAdminMessage(error.message)
       setAdminMessageType('error')
     }
   }
 
-  const handleProductEdit = (product) => {
-    setEditingProductId(product.id)
-    setProductForm({
-      name: product.name || '',
-      description: product.description || '',
-      price: product.price || '',
-      category: product.category || '',
-      stock: product.stock || '',
-      active: product.active
-    })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const handleProductCreated = () => {
+    fetchProducts()
+    setIsCreateProductOpen(false)
+    showMessage('Producto creado exitosamente', 'success')
   }
 
-  const handleProductCancelEdit = () => {
-    setEditingProductId(null)
-    setProductForm({
-      name: '',
-      description: '',
-      price: '',
-      category: '',
-      stock: '',
-      active: true
-    })
+  const handleInventoryLoaded = () => {
+    fetchProducts()
+    setIsLoadInventoryOpen(false)
+    showMessage('Inventario cargado exitosamente', 'success')
   }
 
-  const handleProductDelete = async (id) => {
+  const handleServiceCreated = () => {
+    fetchServices()
+    setIsCreateServiceOpen(false)
+    showMessage('Servicio creado exitosamente', 'success')
+  }
+
+  const handleProductUpdated = () => {
+    fetchProducts()
+    setIsEditProductOpen(false)
+    setSelectedProduct(null)
+    showMessage('Producto actualizado exitosamente', 'success')
+  }
+
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product)
+    setIsEditProductOpen(true)
+  }
+
+  const handleToggleFeatured = async (productId, currentStatus) => {
+    try {
+      const response = await fetch(`${apiEndPoint.products.featured_toggle}/${productId}/featured`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al cambiar estado destacado')
+      }
+
+      fetchProducts()
+      showMessage('Estado destacado actualizado', 'success')
+    } catch (error) {
+      showMessage(error.message, 'error')
+    }
+  }
+
+  const handleDeleteProduct = async (id) => {
+    if (!confirm('¿Estás seguro de eliminar este producto?')) return
+
     try {
       const response = await fetch(`${apiEndPoint.products.admin}/${id}`, {
         method: 'DELETE',
@@ -160,169 +133,15 @@ export default function AdminPage() {
       }
 
       fetchProducts()
+      showMessage('Producto eliminado', 'success')
     } catch (error) {
-      setAdminMessage(error.message)
+      showMessage(error.message, 'error')
     }
   }
 
-  const handleProductImageUpload = async (productId, file) => {
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
+  const handleDeleteService = async (id) => {
+    if (!confirm('¿Estás seguro de eliminar este servicio?')) return
 
-      const response = await fetch(`${apiEndPoint.products.admin}/${productId}/images`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authToken}`
-        },
-        body: formData
-      })
-
-      if (!response.ok) {
-        throw new Error('No se pudo subir la imagen')
-      }
-
-      fetchProducts()
-    } catch (error) {
-      setAdminMessage(error.message)
-    }
-  }
-
-  const handleProductImageDelete = async (productId, imageId) => {
-    try {
-      const response = await fetch(`${apiEndPoint.products.admin}/${productId}/images/${imageId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${authToken}`
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('No se pudo eliminar la imagen')
-      }
-
-      fetchProducts()
-    } catch (error) {
-      setAdminMessage(error.message)
-    }
-  }
-
-  const handleImageReorder = async (productId, images) => {
-    try {
-      const positions = images.map((image, index) => ({
-        imageId: image.id,
-        position: index
-      }))
-
-      const response = await fetch(`${apiEndPoint.products.admin}/${productId}/images/reorder`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
-        },
-        body: JSON.stringify(positions)
-      })
-
-      if (!response.ok) {
-        throw new Error('No se pudo reordenar las imagenes')
-      }
-
-      fetchProducts()
-    } catch (error) {
-      setAdminMessage(error.message)
-    }
-  }
-
-  const handleDragStart = (event, imageIndex) => {
-    event.dataTransfer.setData('imageIndex', imageIndex.toString())
-  }
-
-  const handleDragOver = (event) => {
-    event.preventDefault()
-  }
-
-  const handleDrop = (event, productId, targetIndex, images) => {
-    event.preventDefault()
-    const sourceIndex = parseInt(event.dataTransfer.getData('imageIndex'))
-    
-    if (sourceIndex === targetIndex) return
-
-    const newImages = [...images]
-    const [movedImage] = newImages.splice(sourceIndex, 1)
-    newImages.splice(targetIndex, 0, movedImage)
-
-    handleImageReorder(productId, newImages)
-  }
-
-  const handleServiceSubmit = async (event) => {
-    event.preventDefault()
-    setAdminMessage('')
-
-    try {
-      const payload = {
-        title: serviceForm.title,
-        description: serviceForm.description,
-        icon: serviceForm.icon,
-        active: serviceForm.active
-      }
-
-      const url = editingServiceId
-        ? `${apiEndPoint.services.admin}/${editingServiceId}`
-        : apiEndPoint.services.admin
-
-      const method = editingServiceId ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
-        },
-        body: JSON.stringify(payload)
-      })
-
-      if (!response.ok) {
-        throw new Error('Error al guardar el servicio')
-      }
-
-      setServiceForm({
-        title: '',
-        description: '',
-        icon: '',
-        active: true
-      })
-      setEditingServiceId(null)
-      fetchServices()
-      setAdminMessage('Servicio guardado exitosamente')
-      setAdminMessageType('success')
-      setTimeout(() => setAdminMessage(''), 3000)
-    } catch (error) {
-      setAdminMessage(error.message)
-    }
-  }
-
-  const handleServiceEdit = (service) => {
-    setEditingServiceId(service.id)
-    setServiceForm({
-      title: service.title || '',
-      description: service.description || '',
-      icon: service.icon || '',
-      active: service.active
-    })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleServiceCancelEdit = () => {
-    setEditingServiceId(null)
-    setServiceForm({
-      title: '',
-      description: '',
-      icon: '',
-      active: true
-    })
-  }
-
-  const handleServiceDelete = async (id) => {
     try {
       const response = await fetch(`${apiEndPoint.services.admin}/${id}`, {
         method: 'DELETE',
@@ -336,9 +155,31 @@ export default function AdminPage() {
       }
 
       fetchServices()
+      showMessage('Servicio eliminado', 'success')
     } catch (error) {
-      setAdminMessage(error.message)
+      showMessage(error.message, 'error')
     }
+  }
+
+  const showMessage = (message, type) => {
+    setAdminMessage(message)
+    setAdminMessageType(type)
+    setTimeout(() => setAdminMessage(''), 4000)
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className={styles.container}>
+        <Header />
+        <main className={styles.main}>
+          <section className={styles.errorSection}>
+            <h1>Acceso Denegado</h1>
+            <p>No tienes permisos de administrador.</p>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    )
   }
 
   return (
@@ -348,191 +189,177 @@ export default function AdminPage() {
       <main className={styles.main}>
         <section className={styles.hero}>
           <h1 className={styles.heroTitle}>Panel Administrador</h1>
-          <p className={styles.heroSubtitle}>Gestiona productos, servicios e imagenes</p>
+          <p className={styles.heroSubtitle}>Gestiona productos, inventario, servicios y reportes</p>
         </section>
 
-        {!isAdmin && (
-          <section className={styles.errorSection}>
-            <p>No tienes permisos de administrador.</p>
-          </section>
+        {adminMessage && (
+          <div className={`${styles.message} ${styles[adminMessageType]}`}>
+            {adminMessage}
+          </div>
         )}
 
-        {isAdmin && (
-          <section className={styles.adminSection}>
-            {adminMessage && <p className={`${styles.message} ${adminMessageType === 'success' ? styles.success : styles.error}`}>{adminMessage}</p>}
+        {/* Dashboard de acciones rápidas */}
+        <section className={styles.dashboard}>
+          <div className={styles.actionGrid}>
+            <button
+              className={styles.actionButton}
+              onClick={() => setIsCreateProductOpen(true)}
+            >
+              <span className={styles.actionIcon}>📦</span>
+              <span className={styles.actionLabel}>Crear Producto</span>
+            </button>
 
-            <div className={styles.columns}>
-              <div className={styles.column}>
-                <h2>Productos</h2>
-                <form className={styles.form} onSubmit={handleProductSubmit}>
-                  <input
-                    type="text"
-                    placeholder="Nombre"
-                    value={productForm.name}
-                    onChange={(event) => setProductForm({ ...productForm, name: event.target.value })}
-                    required
+            <button
+              className={styles.actionButton}
+              onClick={() => setIsLoadInventoryOpen(true)}
+            >
+              <span className={styles.actionIcon}>📥</span>
+              <span className={styles.actionLabel}>Cargar Inventario</span>
+            </button>
+
+            <button
+              className={styles.actionButton}
+              onClick={() => setIsCreateServiceOpen(true)}
+            >
+              <span className={styles.actionIcon}>🛠️</span>
+              <span className={styles.actionLabel}>Crear Servicio</span>
+            </button>
+
+            <button
+              className={styles.actionButton}
+              onClick={() => setIsViewReportsOpen(true)}
+            >
+              <span className={styles.actionIcon}>📊</span>
+              <span className={styles.actionLabel}>Ver Ganancias</span>
+            </button>
+          </div>
+        </section>
+
+        {/* Listado de productos */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Productos ({products.length})</h2>
+          <div className={styles.productGrid}>
+            {products.map((product) => (
+              <div key={product.id} className={styles.productCard}>
+                <div className={styles.productImage}>
+                  <img
+                    src={product.images?.[0]?.dataUrl || 'https://via.placeholder.com/200x200/f5f5f5/000000?text=Sin+Imagen'}
+                    alt={product.name}
                   />
-                  <textarea
-                    placeholder="Descripcion"
-                    value={productForm.description}
-                    onChange={(event) => setProductForm({ ...productForm, description: event.target.value })}
-                  />
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="Precio"
-                    value={productForm.price}
-                    onChange={(event) => setProductForm({ ...productForm, price: event.target.value })}
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Categoria"
-                    value={productForm.category}
-                    onChange={(event) => setProductForm({ ...productForm, category: event.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Stock"
-                    value={productForm.stock}
-                    onChange={(event) => setProductForm({ ...productForm, stock: event.target.value })}
-                  />
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={productForm.active}
-                      onChange={(event) => setProductForm({ ...productForm, active: event.target.checked })}
-                    />
-                    Activo
-                  </label>
-                  <div className={styles.formButtons}>
-                    <button type="submit">
-                      {editingProductId ? 'Actualizar Producto' : 'Crear Producto'}
+                  {product.isFeatured && (
+                    <span className={styles.featuredBadge}>⭐ Destacado</span>
+                  )}
+                </div>
+
+                <div className={styles.productContent}>
+                  <h3 className={styles.productName}>{product.name}</h3>
+                  <p className={styles.productPrice}>${Number(product.salePrice || product.price || 0).toFixed(2)}</p>
+                  <p className={styles.productStock}>Stock: {product.stock || 0}</p>
+                  {product.alertStock && product.stock <= product.alertStock && (
+                    <span className={styles.lowStockWarning}>⚠️ Stock bajo</span>
+                  )}
+
+                  <div className={styles.productActions}>
+                    <button
+                      className={styles.btnEdit}
+                      onClick={() => handleEditProduct(product)}
+                      title="Editar producto"
+                    >
+                      ✏️ Editar
                     </button>
-                    {editingProductId && (
-                      <button type="button" onClick={handleProductCancelEdit} className={styles.cancelButton}>
-                        Cancelar
-                      </button>
-                    )}
+                    <button
+                      className={styles.btnToggle}
+                      onClick={() => handleToggleFeatured(product.id, product.isFeatured)}
+                      title={product.isFeatured ? 'Quitar destacado' : 'Marcar como destacado'}
+                    >
+                      ⭐ {product.isFeatured ? 'Quitar' : 'Destacar'}
+                    </button>
+                    <button
+                      className={styles.btnDelete}
+                      onClick={() => handleDeleteProduct(product.id)}
+                      title="Eliminar producto"
+                    >
+                      🗑️ Eliminar
+                    </button>
                   </div>
-                </form>
-
-                <div className={styles.list}>
-                  {products.map((product) => (
-                    <div key={product.id} className={styles.card}>
-                      <img
-                        src={product.images?.[0] || 'https://via.placeholder.com/120x120/f5f5f5/000000?text=Producto'}
-                        alt={product.name}
-                      />
-                      <div className={styles.cardContent}>
-                        <h3>{product.name}</h3>
-                        <p>${Number(product.price || 0).toFixed(2)}</p>
-                        <div className={styles.cardActions}>
-                          <button onClick={() => handleProductEdit(product)}>Editar</button>
-                          <button onClick={() => handleProductDelete(product.id)}>Eliminar</button>
-                        </div>
-                        <div className={styles.imageGrid}>
-                          {product.images?.map((image, index) => (
-                            <div
-                              key={image.id}
-                              className={styles.imageItem}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, index)}
-                              onDragOver={handleDragOver}
-                              onDrop={(e) => handleDrop(e, product.id, index, product.images)}
-                            >
-                              <img src={image.dataUrl} alt={product.name} />
-                              <div className={styles.imageItemActions}>
-                                <span className={styles.dragHandle}>⋮⋮</span>
-                                <button
-                                  className={styles.imageDelete}
-                                  onClick={() => handleProductImageDelete(product.id, image.id)}
-                                >
-                                  Eliminar
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={(event) => {
-                            const files = Array.from(event.target.files || [])
-                            if (files.length) {
-                              Promise.all(files.map((file) => handleProductImageUpload(product.id, file)))
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
+            ))}
+          </div>
+        </section>
 
-              <div className={styles.column}>
-                <h2>Servicios</h2>
-                <form className={styles.form} onSubmit={handleServiceSubmit}>
-                  <input
-                    type="text"
-                    placeholder="Titulo"
-                    value={serviceForm.title}
-                    onChange={(event) => setServiceForm({ ...serviceForm, title: event.target.value })}
-                    required
-                  />
-                  <textarea
-                    placeholder="Descripcion"
-                    value={serviceForm.description}
-                    onChange={(event) => setServiceForm({ ...serviceForm, description: event.target.value })}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Icono (emoji)"
-                    value={serviceForm.icon}
-                    onChange={(event) => setServiceForm({ ...serviceForm, icon: event.target.value })}
-                  />
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={serviceForm.active}
-                      onChange={(event) => setServiceForm({ ...serviceForm, active: event.target.checked })}
-                    />
-                    Activo
-                  </label>
-                  <div className={styles.formButtons}>
-                    <button type="submit">
-                      {editingServiceId ? 'Actualizar Servicio' : 'Crear Servicio'}
-                    </button>
-                    {editingServiceId && (
-                      <button type="button" onClick={handleServiceCancelEdit} className={styles.cancelButton}>
-                        Cancelar
-                      </button>
-                    )}
-                  </div>
-                </form>
-
-                <div className={styles.list}>
-                  {services.map((service) => (
-                    <div key={service.id} className={styles.card}>
-                      <div className={styles.cardContent}>
-                        <h3>{service.icon} {service.title}</h3>
-                        <p>{service.description}</p>
-                        <div className={styles.cardActions}>
-                          <button onClick={() => handleServiceEdit(service)}>Editar</button>
-                          <button onClick={() => handleServiceDelete(service.id)}>Eliminar</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+        {/* Listado de servicios */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Servicios ({services.length})</h2>
+          <div className={styles.serviceGrid}>
+            {services.map((service) => (
+              <div key={service.id} className={styles.serviceCard}>
+                <div className={styles.serviceIcon}>{service.icon}</div>
+                <h3 className={styles.serviceTitle}>{service.title}</h3>
+                <p className={styles.serviceDescription}>{service.description}</p>
+                {service.price && (
+                  <p className={styles.servicePrice}>${Number(service.price).toFixed(2)}</p>
+                )}
+                <div className={styles.serviceActions}>
+                  <button
+                    className={styles.btnDelete}
+                    onClick={() => handleDeleteService(service.id)}
+                  >
+                    🗑️ Eliminar
+                  </button>
                 </div>
               </div>
-            </div>
-          </section>
-        )}
+            ))}
+          </div>
+        </section>
       </main>
 
       <Footer />
+
+      {/* Modales */}
+      {isCreateProductOpen && (
+        <CreateProductModal
+          authToken={authToken}
+          onClose={() => setIsCreateProductOpen(false)}
+          onSuccess={handleProductCreated}
+        />
+      )}
+
+      {isLoadInventoryOpen && (
+        <LoadInventoryModal
+          authToken={authToken}
+          products={products}
+          onClose={() => setIsLoadInventoryOpen(false)}
+          onSuccess={handleInventoryLoaded}
+        />
+      )}
+
+      {isCreateServiceOpen && (
+        <CreateServiceModal
+          authToken={authToken}
+          onClose={() => setIsCreateServiceOpen(false)}
+          onSuccess={handleServiceCreated}
+        />
+      )}
+
+      {isEditProductOpen && selectedProduct && (
+        <EditProductModal
+          authToken={authToken}
+          product={selectedProduct}
+          onClose={() => {
+            setIsEditProductOpen(false)
+            setSelectedProduct(null)
+          }}
+          onSuccess={handleProductUpdated}
+        />
+      )}
+
+      {isViewReportsOpen && (
+        <AdminReports
+          authToken={authToken}
+          onClose={() => setIsViewReportsOpen(false)}
+        />
+      )}
     </div>
   )
 }

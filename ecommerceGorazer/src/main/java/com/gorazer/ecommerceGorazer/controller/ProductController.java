@@ -2,15 +2,20 @@ package com.gorazer.ecommerceGorazer.controller;
 
 import com.gorazer.ecommerceGorazer.model.Product;
 import com.gorazer.ecommerceGorazer.model.ProductImage;
+import com.gorazer.ecommerceGorazer.payload.request.FeaturedProductRequest;
 import com.gorazer.ecommerceGorazer.payload.request.ImagePositionRequest;
+import com.gorazer.ecommerceGorazer.payload.request.InventoryLoadRequest;
 import com.gorazer.ecommerceGorazer.payload.request.ProductRequest;
+import com.gorazer.ecommerceGorazer.payload.response.MessageResponse;
 import com.gorazer.ecommerceGorazer.payload.response.ProductImageResponse;
 import com.gorazer.ecommerceGorazer.payload.response.ProductResponse;
 import com.gorazer.ecommerceGorazer.repository.ProductImageRepository;
 import com.gorazer.ecommerceGorazer.repository.ProductRepository;
+import com.gorazer.ecommerceGorazer.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +36,9 @@ public class ProductController {
     @Autowired
     private ProductImageRepository productImageRepository;
 
+    @Autowired
+    private InventoryService inventoryService;
+
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponse>> getProducts() {
         List<Product> products = productRepository.findByActiveTrue();
@@ -44,15 +52,37 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/products/new")
+    public ResponseEntity<List<ProductResponse>> getNewProducts() {
+        List<Product> allProducts = productRepository.findByActiveTrue();
+        List<Product> newProducts = allProducts.stream()
+                .filter(Product::isNew)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(newProducts.stream().map(this::toResponse).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/products/featured")
+    public ResponseEntity<List<ProductResponse>> getFeaturedProducts() {
+        List<Product> allProducts = productRepository.findByActiveTrue();
+        List<Product> featured = allProducts.stream()
+                .filter(Product::isFeatured)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(featured.stream().map(this::toResponse).collect(Collectors.toList()));
+    }
+
     @PostMapping("/admin/products")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
+        product.setPrice(request.getPrice() != null ? request.getPrice() : request.getSalePrice());
+        product.setCostPrice(request.getCostPrice());
+        product.setSalePrice(request.getSalePrice());
         product.setCategory(request.getCategory());
-        product.setStock(request.getStock());
+        product.setStock(request.getStock() != null ? request.getStock() : 0);
+        product.setAlertStock(request.getAlertStock() != null ? request.getAlertStock() : 10);
+        product.setFeatured(request.getIsFeatured() != null && request.getIsFeatured());
         product.setActive(request.getActive() == null || request.getActive());
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());
@@ -67,9 +97,26 @@ public class ProductController {
                 .map(existing -> {
                     existing.setName(request.getName());
                     existing.setDescription(request.getDescription());
-                    existing.setPrice(request.getPrice());
+                    if (request.getPrice() != null) {
+                        existing.setPrice(request.getPrice());
+                    }
+                    if (request.getCostPrice() != null) {
+                        existing.setCostPrice(request.getCostPrice());
+                    }
+                    if (request.getSalePrice() != null) {
+                        existing.setSalePrice(request.getSalePrice());
+                        existing.setPrice(request.getSalePrice());
+                    }
                     existing.setCategory(request.getCategory());
-                    existing.setStock(request.getStock());
+                    if (request.getStock() != null) {
+                        existing.setStock(request.getStock());
+                    }
+                    if (request.getAlertStock() != null) {
+                        existing.setAlertStock(request.getAlertStock());
+                    }
+                    if (request.getIsFeatured() != null) {
+                        existing.setFeatured(request.getIsFeatured());
+                    }
                     if (request.getActive() != null) {
                         existing.setActive(request.getActive());
                     }
@@ -78,6 +125,38 @@ public class ProductController {
                     return ResponseEntity.ok(toResponse(saved));
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/admin/products/{id}/featured")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductResponse> toggleFeatured(@PathVariable Long id, @RequestBody FeaturedProductRequest request) {
+        return productRepository.findById(id)
+                .map(product -> {
+                    product.setFeatured(request.getIsFeatured());
+                    product.setUpdatedAt(LocalDateTime.now());
+                    Product saved = productRepository.save(product);
+                    return ResponseEntity.ok(toResponse(saved));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/admin/products/inventory")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> loadInventory(@RequestBody InventoryLoadRequest request, Authentication authentication) {
+        try {
+            String userEmail = authentication.getName();
+            inventoryService.loadInventory(
+                request.getProductId(),
+                request.getQuantity(),
+                request.getCostPrice(),
+                request.getSalePrice(),
+                userEmail,
+                request.getNotes()
+            );
+            return ResponseEntity.ok(new MessageResponse("Inventario cargado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()));
+        }
     }
 
     @DeleteMapping("/admin/products/{id}")
@@ -175,8 +254,13 @@ public class ProductController {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
+                product.getCostPrice(),
+                product.getSalePrice(),
                 product.getCategory(),
                 product.getStock(),
+                product.getAlertStock(),
+                product.isFeatured(),
+                product.isNew(),
                 product.isActive(),
                 images
         );

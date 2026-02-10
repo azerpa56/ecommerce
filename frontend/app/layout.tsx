@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import React from "react";
+import { CurrencyProvider } from "./context/CurrencyProvider";
 
 export const metadata: Metadata = {
   title: "Ecommerce Gorazer",
@@ -14,7 +15,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <CurrencyProvider>
+          {children}
+        </CurrencyProvider>
+      </body>
     </html>
   );
 }
+

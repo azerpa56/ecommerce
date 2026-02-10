@@ -1,10 +1,44 @@
-import React from 'react'
+"use client"
+
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Header from "../components/header/page"
 import Footer from "../components/footer/page"
+import CurrencyToggle from "../components/CurrencyToggle"
+import { useCurrency } from "../context/CurrencyProvider"
 import styles from './page.module.css'
+import apiEndPoint from "../config/apiEndPoint.json"
 
 export default function Home() {
+  const { formatPrice } = useCurrency()
+  const [newProducts, setNewProducts] = useState([])
+  const [featuredProducts, setFeaturedProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      // Cargar productos nuevos y destacados en paralelo
+      const [newResponse, featuredResponse] = await Promise.all([
+        fetch(apiEndPoint.products.new),
+        fetch(apiEndPoint.products.featured)
+      ])
+
+      const newData = await newResponse.json()
+      const featuredData = await featuredResponse.json()
+
+      setNewProducts(Array.isArray(newData) ? newData.slice(0, 4) : [])
+      setFeaturedProducts(Array.isArray(featuredData) ? featuredData.slice(0, 4) : [])
+    } catch (error) {
+      console.error('Error al cargar productos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className={styles.container}>
         <Header />
@@ -16,10 +50,91 @@ export default function Home() {
                 <p className={styles.heroSubtitle}>
                     Descubre productos de calidad al mejor precio. Tu tienda de confianza online.
                 </p>
-                <Link href="/products" className={styles.heroButton}>
-                    Ver Productos
-                </Link>
+                <div className={styles.heroActions}>
+                  <Link href="/products" className={styles.heroButton}>
+                      Ver Productos
+                  </Link>
+                  <CurrencyToggle />
+                </div>
             </section>
+
+            {/* Productos Nuevos */}
+            {newProducts.length > 0 && (
+              <section className={styles.newProductsSection}>
+                <h2 className={styles.sectionTitle}>
+                  <span className={styles.newBadge}>🆕</span> Productos Nuevos
+                </h2>
+                <div className={styles.productsGrid}>
+                  {newProducts.map((product) => (
+                    <Link 
+                      key={product.id} 
+                      href={`/products/${product.id}`} 
+                      className={styles.productCard}
+                    >
+                      <div className={styles.productImageContainer}>
+                        <img 
+                          src={product.images?.[0]?.dataUrl || 'https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto'} 
+                          alt={product.name} 
+                          className={styles.productImage}
+                        />
+                        <span className={styles.newProductBadge}>NUEVO</span>
+                      </div>
+                      <div className={styles.productInfo}>
+                        <h3 className={styles.productName}>{product.name}</h3>
+                        <p className={styles.productDescription}>
+                          {product.description?.substring(0, 60)}...
+                        </p>
+                        <p className={styles.productPrice}>
+                          {formatPrice(product.salePrice || product.price)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Productos Destacados */}
+            {featuredProducts.length > 0 && (
+              <section className={styles.featuredSection}>
+                <h2 className={styles.sectionTitle}>
+                  <span className={styles.featuredBadge}>⭐</span> Productos Destacados
+                </h2>
+                <div className={styles.productsGrid}>
+                  {featuredProducts.map((product) => (
+                    <Link 
+                      key={product.id} 
+                      href={`/products/${product.id}`} 
+                      className={styles.productCard}
+                    >
+                      <div className={styles.productImageContainer}>
+                        <img 
+                          src={product.images?.[0]?.dataUrl || 'https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto'} 
+                          alt={product.name} 
+                          className={styles.productImage}
+                        />
+                        <span className={styles.featuredProductBadge}>⭐ DESTACADO</span>
+                      </div>
+                      <div className={styles.productInfo}>
+                        <h3 className={styles.productName}>{product.name}</h3>
+                        <p className={styles.productDescription}>
+                          {product.description?.substring(0, 60)}...
+                        </p>
+                        <p className={styles.productPrice}>
+                          {formatPrice(product.salePrice || product.price)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {loading && (
+              <div className={styles.loadingContainer}>
+                <p>Cargando productos...</p>
+              </div>
+            )}
 
             {/* Ofertas Especiales */}
             <h2 className={styles.sectionTitle}>Ofertas Especiales</h2>
@@ -27,7 +142,7 @@ export default function Home() {
                 <div className={styles.slider}>
                     <div className={styles.sliderItem}>
                         <img 
-                            src="https://via.placeholder.com/800x400/000000/FFFFFF?text=Oferta+1" 
+                            src="https://via.placeholder.com/800x400/667eea/FFFFFF?text=Ofertas+Exclusivas" 
                             alt="Oferta 1" 
                             className={styles.sliderImage}
                         />
@@ -36,35 +151,7 @@ export default function Home() {
                             <p className={styles.sliderText}>
                                 Hasta 50% de descuento en productos seleccionados. ¡No te lo pierdas!
                             </p>
-                            <button className={styles.sliderButton}>Ver Más</button>
-                        </div>
-                    </div>
-                    <div className={styles.sliderItem}>
-                        <img 
-                            src="https://via.placeholder.com/800x400/000000/FFFFFF?text=Oferta+2" 
-                            alt="Oferta 2" 
-                            className={styles.sliderImage}
-                        />
-                        <div className={styles.sliderContent}>
-                            <h3 className={styles.sliderTitle}>Envío Gratis</h3>
-                            <p className={styles.sliderText}>
-                                En compras mayores a $50. Disfruta de entregas rápidas y seguras.
-                            </p>
-                            <button className={styles.sliderButton}>Comprar Ahora</button>
-                        </div>
-                    </div>
-                    <div className={styles.sliderItem}>
-                        <img 
-                            src="https://via.placeholder.com/800x400/000000/FFFFFF?text=Oferta+3" 
-                            alt="Oferta 3" 
-                            className={styles.sliderImage}
-                        />
-                        <div className={styles.sliderContent}>
-                            <h3 className={styles.sliderTitle}>Nuevos Productos</h3>
-                            <p className={styles.sliderText}>
-                                Descubre lo último en nuestra colección. Innovación y calidad.
-                            </p>
-                            <button className={styles.sliderButton}>Explorar</button>
+                            <Link href="/ofertas" className={styles.sliderButton}>Ver Ofertas</Link>
                         </div>
                     </div>
                 </div>
@@ -98,61 +185,6 @@ export default function Home() {
                         <div className={styles.categoryIcon}>🎮</div>
                         <h3 className={styles.categoryName}>Juguetes</h3>
                     </Link>
-                </div>
-            </section>
-
-            {/* Productos Destacados */}
-            <section className={styles.featuredSection}>
-                <h2 className={styles.sectionTitle}>Productos Destacados</h2>
-                <div className={styles.productsGrid}>
-                    <div className={styles.productCard}>
-                        <img 
-                            src="https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto+1" 
-                            alt="Producto 1" 
-                            className={styles.productImage}
-                        />
-                        <div className={styles.productInfo}>
-                            <h3 className={styles.productName}>Producto Premium 1</h3>
-                            <p className={styles.productPrice}>$99.99</p>
-                            <button className={styles.productButton}>Agregar al Carrito</button>
-                        </div>
-                    </div>
-                    <div className={styles.productCard}>
-                        <img 
-                            src="https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto+2" 
-                            alt="Producto 2" 
-                            className={styles.productImage}
-                        />
-                        <div className={styles.productInfo}>
-                            <h3 className={styles.productName}>Producto Premium 2</h3>
-                            <p className={styles.productPrice}>$149.99</p>
-                            <button className={styles.productButton}>Agregar al Carrito</button>
-                        </div>
-                    </div>
-                    <div className={styles.productCard}>
-                        <img 
-                            src="https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto+3" 
-                            alt="Producto 3" 
-                            className={styles.productImage}
-                        />
-                        <div className={styles.productInfo}>
-                            <h3 className={styles.productName}>Producto Premium 3</h3>
-                            <p className={styles.productPrice}>$79.99</p>
-                            <button className={styles.productButton}>Agregar al Carrito</button>
-                        </div>
-                    </div>
-                    <div className={styles.productCard}>
-                        <img 
-                            src="https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto+4" 
-                            alt="Producto 4" 
-                            className={styles.productImage}
-                        />
-                        <div className={styles.productInfo}>
-                            <h3 className={styles.productName}>Producto Premium 4</h3>
-                            <p className={styles.productPrice}>$199.99</p>
-                            <button className={styles.productButton}>Agregar al Carrito</button>
-                        </div>
-                    </div>
                 </div>
             </section>
         </main>

@@ -3,10 +3,13 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import Header from "../components/header/page"
 import Footer from "../components/footer/page"
+import CurrencyToggle from "../components/CurrencyToggle"
+import { useCurrency } from "../context/CurrencyProvider"
 import styles from './page.module.css'
-import { apiEndpoints as apiEndPoint } from "../config/api.js"
+import apiEndPoint from "../config/apiEndPoint.json"
 
 export default function Products() {
+  const { formatPrice } = useCurrency()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -57,17 +60,6 @@ export default function Products() {
     return products.filter((product) => product.category === selectedCategory)
   }, [products, selectedCategory])
 
-  const formatPrice = (value) => {
-    const amount = Number(value)
-    if (Number.isNaN(amount)) {
-      return '$0.00'
-    }
-    return amount.toLocaleString('es-ES', {
-      style: 'currency',
-      currency: 'USD'
-    })
-  }
-
   const addToCart = (product) => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]')
     const existingIndex = cart.findIndex((item) => item.id === product.id)
@@ -78,13 +70,14 @@ export default function Products() {
       cart.push({
         id: product.id,
         name: product.name,
-        price: Number(product.price) || 0,
+        price: Number(product.salePrice || product.price) || 0,
         quantity: 1,
-        image: product.imageUrls?.[0] || product.image || ''
+        image: product.images?.[0]?.dataUrl || product.image || ''
       })
     }
 
     localStorage.setItem('cart', JSON.stringify(cart))
+    alert(`${product.name} agregado al carrito`)
   }
 
   return (
@@ -93,10 +86,15 @@ export default function Products() {
 
       <main className={styles.main}>
         <section className={styles.hero}>
-          <h1 className={styles.heroTitle}>Nuestros Productos</h1>
-          <p className={styles.heroSubtitle}>
-            Explora nuestra amplia selección de productos de calidad
-          </p>
+          <div className={styles.heroContent}>
+            <div>
+              <h1 className={styles.heroTitle}>Nuestros Productos</h1>
+              <p className={styles.heroSubtitle}>
+                Explora nuestra amplia selección de productos de calidad
+              </p>
+            </div>
+            <CurrencyToggle />
+          </div>
         </section>
 
         <section className={styles.filtersSection}>
@@ -104,7 +102,7 @@ export default function Products() {
             {categories.map((category) => (
               <button
                 key={category}
-                className={styles.filterButton}
+                className={`${styles.filterButton} ${selectedCategory === category ? styles.active : ''}`}
                 onClick={() => setSelectedCategory(category)}
               >
                 {category}
@@ -114,22 +112,39 @@ export default function Products() {
         </section>
 
         <section className={styles.productsSection}>
-          {loading && <p>Cargando productos...</p>}
-          {error && <p>Mostrando productos de ejemplo.</p>}
+          {loading && <p className={styles.message}>Cargando productos...</p>}
+          {error && <p className={styles.errorMessage}>{error}</p>}
           <div className={styles.productsGrid}>
             {filteredProducts.map((product) => (
               <div key={product.id} className={styles.productCard}>
-                <img 
-                  src={product.images?.[0]?.dataUrl || product.image || 'https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto'} 
-                  alt={product.name} 
-                  className={styles.productImage}
-                />
+                <div className={styles.productImageContainer}>
+                  <img 
+                    src={product.images?.[0]?.dataUrl || product.image || 'https://via.placeholder.com/300x300/f5f5f5/000000?text=Producto'} 
+                    alt={product.name} 
+                    className={styles.productImage}
+                  />
+                  {product.isFeatured && (
+                    <span className={styles.featuredBadge}>⭐ DESTACADO</span>
+                  )}
+                </div>
                 <div className={styles.productInfo}>
                   <span className={styles.productCategory}>{product.category}</span>
                   <h3 className={styles.productName}>{product.name}</h3>
-                  <p className={styles.productPrice}>{formatPrice(product.price)}</p>
-                  <button className={styles.productButton} onClick={() => addToCart(product)}>
-                    Agregar al Carrito
+                  <p className={styles.productPrice}>
+                    {formatPrice(product.salePrice || product.price)}
+                  </p>
+                  {product.stock <= (product.alertStock || 5) && product.stock > 0 && (
+                    <span className={styles.lowStockBadge}>⚠️ Últimas unidades</span>
+                  )}
+                  {product.stock === 0 && (
+                    <span className={styles.outOfStockBadge}>Sin stock</span>
+                  )}
+                  <button 
+                    className={styles.productButton} 
+                    onClick={() => addToCart(product)}
+                    disabled={product.stock === 0}
+                  >
+                    {product.stock === 0 ? 'Sin stock' : 'Agregar al Carrito'}
                   </button>
                 </div>
               </div>

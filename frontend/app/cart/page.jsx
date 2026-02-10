@@ -5,8 +5,10 @@ import { loadStripe } from '@stripe/stripe-js'
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js'
 import Header from "../components/header/page"
 import Footer from "../components/footer/page"
+import CurrencyToggle from "../components/CurrencyToggle"
+import { useCurrency } from "../context/CurrencyProvider"
 import styles from './page.module.css'
-import { apiEndpoints as apiEndPoint } from "../config/api.js"
+import apiEndPoint from "../config/apiEndPoint.json"
 
 const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder'
 const stripePromise = stripePublicKey.includes('placeholder') ? null : loadStripe(stripePublicKey)
@@ -79,7 +81,7 @@ const CheckoutForm = ({ total, cartItems, onMessage }) => {
             price: item.price
           }))
 
-          const orderResponse = await fetch('http://localhost:8080/api/orders', {
+          const orderResponse = await fetch(apiEndPoint.orders.create, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -126,6 +128,7 @@ const CheckoutForm = ({ total, cartItems, onMessage }) => {
 }
 
 export default function CartPage() {
+  const { formatPrice, currency, rate } = useCurrency()
   const [cartItems, setCartItems] = useState([])
   const [message, setMessage] = useState('')
 
@@ -159,15 +162,19 @@ export default function CartPage() {
     updateCart(updated)
   }
 
-
   return (
     <div className={styles.container}>
       <Header />
 
       <main className={styles.main}>
         <section className={styles.hero}>
-          <h1 className={styles.heroTitle}>Carrito de Compras</h1>
-          <p className={styles.heroSubtitle}>Revisa tus productos antes de pagar</p>
+          <div className={styles.heroContent}>
+            <div>
+              <h1 className={styles.heroTitle}>Carrito de Compras</h1>
+              <p className={styles.heroSubtitle}>Revisa tus productos antes de pagar</p>
+            </div>
+            <CurrencyToggle />
+          </div>
         </section>
 
         <section className={styles.cartSection}>
@@ -184,12 +191,15 @@ export default function CartPage() {
                   />
                   <div className={styles.cartInfo}>
                     <h3 className={styles.cartName}>{item.name}</h3>
-                    <p className={styles.cartPrice}>${item.price.toFixed(2)}</p>
+                    <p className={styles.cartPrice}>{formatPrice(item.price)}</p>
                     <div className={styles.cartQuantity}>
                       <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
                       <span>{item.quantity}</span>
                       <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
                     </div>
+                    <p className={styles.itemTotal}>
+                      Subtotal: {formatPrice(item.price * item.quantity)}
+                    </p>
                   </div>
                   <button className={styles.removeButton} onClick={() => handleRemove(item.id)}>
                     Eliminar
@@ -200,11 +210,24 @@ export default function CartPage() {
           )}
 
           <div className={styles.summary}>
-            <h2>Total: ${total.toFixed(2)}</h2>
-            {!stripePromise && (
-              <p className={styles.message}>Configura NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY para habilitar el pago.</p>
+            <div className={styles.totalSection}>
+              <h2 className={styles.totalLabel}>Total:</h2>
+              <h2 className={styles.totalAmount}>{formatPrice(total)}</h2>
+            </div>
+            
+            {currency === 'BS' && rate && (
+              <div className={styles.conversionInfo}>
+                <p>Tasa BCV: Bs. {rate.toFixed(2)} por USD</p>
+                <p className={styles.usdEquivalent}>Equivalente: ${total.toFixed(2)} USD</p>
+              </div>
             )}
-            {stripePromise && (
+
+            {!stripePromise && (
+              <p className={styles.warningMessage}>
+                Configura NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY para habilitar el pago.
+              </p>
+            )}
+            {stripePromise && cartItems.length > 0 && (
               <Elements stripe={stripePromise}>
                 <CheckoutForm total={total} cartItems={cartItems} onMessage={setMessage} />
               </Elements>
